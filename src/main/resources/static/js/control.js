@@ -308,37 +308,57 @@ class CarController {
             this.currentStatus.leftDistance || '--';
         document.getElementById('distance-right').textContent =
             this.currentStatus.rightDistance || '--';
-        document.getElementById('battery-level').textContent =
-            this.currentStatus.batteryLevel || '100';
         document.getElementById('current-speed').textContent =
             this.currentStatus.speed || '0';
-        document.getElementById('car-direction').textContent =
-            this.currentStatus.direction || 'STOP';
+        
+        // 更新小车方向状态
+        const directionElement = document.getElementById('car-direction');
+        const directionMap = {
+            'FORWARD': '前进',
+            'BACKWARD': '后退',
+            'LEFT': '左转',
+            'RIGHT': '右转',
+            'STOP': '停止',
+            'EMERGENCY_STOP': '紧急停止'
+        };
+        if (directionElement) {
+            const direction = this.currentStatus.direction || 'STOP';
+            directionElement.textContent = `状态: ${directionMap[direction] || direction}`;
+        }
 
         // 更新速度滑块
         const speedSlider = document.getElementById('speed-slider');
         const speedValue = document.getElementById('speed-value');
         if (speedSlider && speedValue) {
             speedSlider.value = this.currentStatus.speed || 0;
-            speedValue.textContent = `${this.currentStatus.speed}%`;
+            speedValue.textContent = `${this.currentStatus.speed || 0}%`;
         }
 
         // 更新电池指示器
-        this.updateBatteryIndicator(this.currentStatus.batteryLevel);
+        this.updateBatteryIndicator(this.currentStatus.batteryLevel || 100);
     }
 
     updateBatteryIndicator(level) {
         const batteryIndicator = document.getElementById('battery-indicator');
+        const batteryLevel = document.getElementById('battery-level');
         if (!batteryIndicator) return;
 
         batteryIndicator.style.width = `${level}%`;
+        batteryIndicator.setAttribute('aria-valuenow', level);
+        
+        // 更新电池电量文本
+        if (batteryLevel) {
+            batteryLevel.textContent = `${level}%`;
+        }
 
+        // 根据电量更新颜色类名
+        batteryIndicator.classList.remove('bg-success', 'bg-warning', 'bg-danger');
         if (level > 50) {
-            batteryIndicator.style.backgroundColor = '#2ecc71';
+            batteryIndicator.classList.add('bg-success');
         } else if (level > 20) {
-            batteryIndicator.style.backgroundColor = '#f39c12';
+            batteryIndicator.classList.add('bg-warning');
         } else {
-            batteryIndicator.style.backgroundColor = '#e74c3c';
+            batteryIndicator.classList.add('bg-danger');
         }
     }
 
